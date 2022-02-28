@@ -4,9 +4,12 @@
 {% block content %}
 <h1>this is my home page</h1>
 <div>
+  <a href="{% url 'base-create_room' %}">Create Room</a>
   <div>
     {% for room in rooms %}
     <div>
+      <a href="{% url 'base-update_room' room.id %}">Edit</a>
+      <a href="{% url 'base-delete_room' room.id %}">Delete</a>
       <span>@{{room.host.username}}</span>
       <a href="{% url 'base-room' room.id %}">
         <h2>{{ room.name }}</h2>
