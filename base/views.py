@@ -65,9 +65,17 @@ def home(request):
     rooms = Room.objects.filter(
         Q(topic__name__icontains=q) | Q(description__icontains=q) | Q(name__icontains=q)
     )
-    room_count = rooms.count()
+
     topics = Topic.objects.all()
-    context = {"rooms": rooms, "topics": topics, "room_count": room_count}
+    room_count = rooms.count()
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
+
+    context = {
+        "rooms": rooms,
+        "topics": topics,
+        "room_count": room_count,
+        "room_messages": room_messages,
+    }
     return render(request, "base/home.html", context)
 
 
@@ -91,7 +99,7 @@ def room(request, pk):
     return render(request, "base/room.html", context)
 
 
-@login_required(login_url="login")
+@login_required(login_url="base-login")
 def delete_message(request, pk):
     message = Message.objects.get(id=pk)
 
@@ -101,10 +109,10 @@ def delete_message(request, pk):
     if request.method == "POST":
         message.delete()
         return redirect("base-home")
-    return render(request, "base/delete.html", {'obj': message})
+    return render(request, "base/delete.html", {"obj": message})
 
 
-@login_required(login_url="login")
+@login_required(login_url="base-login")
 def create_room(request):
     form = RoomForm()
     if request.method == "POST":
@@ -116,7 +124,7 @@ def create_room(request):
     return render(request, "base/room_form.html", context)
 
 
-@login_required(login_url="login")
+@login_required(login_url="base-login")
 def update_room(request, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
