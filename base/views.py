@@ -17,6 +17,14 @@ def logout_user(request):
     return redirect("base-home")
 
 
+class Bruh():
+    def __init__(self, x) -> None:
+        self.bruh = x
+
+    def gay(self):
+        pass
+
+
 def register_page(request):
     form = UserCreationForm()
     if request.method == "POST":
@@ -62,11 +70,12 @@ def login_page(request):
 def home(request):
     if (q := request.GET.get("q")) is None:
         q = ""
+
     rooms = Room.objects.filter(
         Q(topic__name__icontains=q) | Q(description__icontains=q) | Q(name__icontains=q)
     )
 
-    topics = Topic.objects.all()
+    topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
 
@@ -117,7 +126,7 @@ def delete_message(request, pk):
 
     if request.method == "POST":
         message.delete()
-        return redirect("base-home")
+        return redirect('base-home')
     return render(request, "base/delete.html", {"obj": message})
 
 
@@ -186,7 +195,6 @@ def update_user(request):
     user = request.user
     form = UserForm(instance=user)
     context = {"form": form, "user": user}
-
     if request.method == "POST":
         form = UserForm(request.POST, instance=user)
         if form.is_valid():
@@ -195,3 +203,18 @@ def update_user(request):
         return redirect("base-home")
 
     return render(request, "base/update_user.html", context)
+
+
+def topic_page(request):
+    if (q := request.GET.get("q")) is None:
+        q = ""
+
+    topics = Topic.objects.filter(name__icontains=q)
+    context = {'topics': topics}
+    return render(request, 'base/topics.html', context)
+
+
+def activity_page(request):
+    room_messages = Message.objects.all()
+    context = {'room_messages':room_messages}
+    return render(request, 'base/activity.html', context)
